@@ -2,89 +2,40 @@ import pyautogui, pyperclip
 import time
 
 # Código que queremos escribir
-code = """-- Crear la base de datos
-CREATE DATABASE EjemploJoins;
-GO
-
--- Usar la base de datos creada
-USE EjemploJoins;
-GO
-
--- Crear la primera tabla: Empleados
-CREATE TABLE Empleados (
-    ID INT PRIMARY KEY,
-    Nombre NVARCHAR(50),
-    Departamento NVARCHAR(50)
-);
-GO
-
--- Insertar datos en la tabla Empleados
-INSERT INTO Empleados (ID, Nombre, Departamento) VALUES
-(1, 'Juan', 'Ventas'),
-(2, 'María', 'Recursos Humanos'),
-(3, 'Pedro', 'Ventas'),
-(4, 'Laura', 'Marketing'),
-(5, 'Ana', 'Ventas');  -- Empleado sin ventas
-GO
-
--- Crear la segunda tabla: Ventas
-CREATE TABLE Ventas (
-    ID INT PRIMARY KEY,
-    EmpleadoID INT,
-    Monto DECIMAL(10, 2),
-    Fecha DATE
-);
-GO
-
--- Insertar datos en la tabla Ventas
-INSERT INTO Ventas (ID, EmpleadoID, Monto, Fecha) VALUES
-(1, 1, 100.00, '2022-06-01'),
-(2, 1, 150.00, '2022-06-02'),
-(3, 2, 200.00, '2022-06-03'),
-(4, 3, 120.00, '2022-06-04');
-GO
-
--- Ejemplo de Inner Join
--- "Muestra solo los empleados con ventas."
-SELECT e.Nombre AS NombreEmpleado, e.Departamento, v.Monto, v.Fecha
-FROM Empleados e
-INNER JOIN Ventas v ON e.ID = v.EmpleadoID;
-GO
-
--- Ejemplo de Left Join
--- "Muestra todos los empleados, con o sin ventas."
-SELECT e.Nombre AS NombreEmpleado, e.Departamento, v.Monto, v.Fecha
-FROM Empleados e
-LEFT JOIN Ventas v ON e.ID = v.EmpleadoID;
-GO
-
--- Ejemplo de Right Join
--- "Muestra todas las ventas, incluyendo ventas sin empleados registrados."
-SELECT e.Nombre AS NombreEmpleado, e.Departamento, v.Monto, v.Fecha
-FROM Empleados e
-RIGHT JOIN Ventas v ON e.ID = v.EmpleadoID;
-GO
-
--- Ejemplo de Full Join
--- "Muestra todos los empleados y ventas, sin importar si tienen coincidencias."
-SELECT e.Nombre AS NombreEmpleado, e.Departamento, v.Monto, v.Fecha
-FROM Empleados e
-FULL JOIN Ventas v ON e.ID = v.EmpleadoID;
-GO"""
+code = """import requests
 
 
-# Función para simular la escritura
+def obtener_tasa_de_cambio(moneda_origen, moneda_destino):
+    api_key = 'TU_API_KEY'
+    url = f'https://api.exchangerate-api.com/v4/latest/{moneda_origen}'
+    response = requests.get(url)
+    datos = response.json()
+    tasa = datos.get('rates', {}).get(moneda_destino)
+    return tasa
+
+
+def convertir_moneda(cantidad, moneda_origen, moneda_destino):
+    tasa = obtener_tasa_de_cambio(moneda_origen, moneda_destino)
+    return cantidad * tasa
+
+
+cantidad = 100
+moneda_origen = "USD"
+moneda_destino = "EUR"
+resultado = convertir_moneda(cantidad, moneda_origen, moneda_destino)
+print(f'{cantidad} {moneda_origen} son {resultado:.2f} {moneda_destino}')"""
+
+
 def type_code(code, typing_speed=0.001):
     for char in code:
-        if char == "+":
-            pyperclip.copy("+")
+        if char in "+<#{}[]":
+            # Copiar el carácter al portapapeles y pegarlo
+            pyperclip.copy(char)
+            time.sleep(
+                0.1
+            )  # Pausa breve para asegurar que el portapapeles se actualice
             pyautogui.hotkey("ctrl", "v")
-        elif char == "<":
-            pyperclip.copy("<")
-            pyautogui.hotkey("ctrl", "v")
-        elif char == "#":
-            pyperclip.copy("#")
-            pyautogui.hotkey("ctrl", "v")
+            # pyautogui.press("backspace")
         else:
             pyautogui.write(char)
         time.sleep(typing_speed)
